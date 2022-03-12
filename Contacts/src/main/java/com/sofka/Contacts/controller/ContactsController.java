@@ -7,7 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 
 import java.util.HashMap;
@@ -16,6 +26,8 @@ import java.util.Map;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = "http://localhost:3000", methods =
+        {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH})
 public class ContactsController {
 
     @Autowired
@@ -41,13 +53,14 @@ public class ContactsController {
     }
 
     @PostMapping(path = "/contact")
-    public ResponseEntity<Contact> create(Contact contact) {
+    public ResponseEntity<Contact> create(@RequestBody Contact contact) {
         try {
-            contactService.save(contact);
             log.info("Contacto Creado " + contact);
+            contactService.save(contact);
+
             return new ResponseEntity<Contact>(contact, HttpStatus.CREATED);
         } catch (Exception exc) {
-            log.info("ERROR " + exc.getMessage());
+            log.info("ERROR create " + exc.getMessage());
             return new ResponseEntity<Contact>(contact, HttpStatus.CONFLICT);
         }
 
@@ -66,8 +79,11 @@ public class ContactsController {
 
     }
 
+//
+//    @RequestMapping(value = "/contact/{id}", method = RequestMethod.PUT)
     @PutMapping(path = "/contact/{id}")
-    public ResponseEntity<Contact> update(Contact contact, @PathVariable("id") Long id) {
+    public ResponseEntity<Contact> update(@PathVariable("id") Long id, @RequestBody Contact contact) {
+
         try {
             log.info("Contacto a modificar: {}", contact);
             contactService.update(id, contact);
@@ -131,7 +147,7 @@ public class ContactsController {
     }
 
     @PatchMapping(path = "/contact/dateDelete/{id}")
-    public ResponseEntity<Contact> updateDelete(Contact contact, @PathVariable("id") Long id) {
+    public ResponseEntity<Contact> updateDelete(@PathVariable("id") Long id, @RequestBody Contact contact) {
         try {
             contactService.updateEliminar(id, contact);
             log.info("Contacto No. {}", contact.getDateDelete());
